@@ -56,3 +56,13 @@ Run the CLI smoke tests with:
 ```sh
 python -m pytest
 ```
+
+## Workspace skills
+
+- `/local-db start|execute_script|seed_data <table>` manages a loopback-only
+  Oracle Database Free container for development. See
+  `.agents/local-db/SKILL.md`; Docker and a private root `.local-db.env` are
+  required. Seeding uses the optional `local-db` extra.
+- `/dumps-generator <CSV|JSON|XML|DAT>` creates deterministic synthetic files
+  with 120–150 columns for exercising validation. See
+  `.agents/dumps-generator/SKILL.md`.

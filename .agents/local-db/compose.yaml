@@ -1,0 +1,16 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim-fast
+    container_name: local-db-oracle
+    environment:
+      ORACLE_PASSWORD: ${LOCAL_ORACLE_PASSWORD:?Set LOCAL_ORACLE_PASSWORD in .local-db.env}
+      APP_USER: ${LOCAL_DB_USER:-local_app}
+      APP_USER_PASSWORD: ${LOCAL_DB_PASSWORD:?Set LOCAL_DB_PASSWORD in .local-db.env}
+    ports:
+      - "127.0.0.1:1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    restart: unless-stopped
+
+volumes:
+  oracle-data:
