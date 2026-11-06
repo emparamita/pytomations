@@ -3,6 +3,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "local-db"))
+from local_db import _row_value
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LOCAL_DB = ROOT / ".agents/local-db/local_db.py"
@@ -74,3 +77,12 @@ def test_seed_data_refuses_non_loopback_dsn(tmp_path: Path) -> None:
     )
     assert result.returncode != 0
     assert "local-only" in result.stderr
+
+
+def test_seed_numeric_values_fit_declared_oracle_precision() -> None:
+    latitude = _row_value("NUMBER", 22, 10, 7, 15000, 50)
+    bill_sequence = _row_value("NUMBER", 22, 6, 0, 15000, 8)
+
+    assert latitude.as_tuple().exponent == -7
+    assert len(latitude.as_tuple().digits) <= 10
+    assert bill_sequence < 1_000_000

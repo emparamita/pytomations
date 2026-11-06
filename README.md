@@ -2,8 +2,8 @@
 
 This installable Python project compares an Oracle query or table with a
 delimited `.dat` or CSV export and writes an Excel report. Configure it for
-your own database and files; it does not require AI-agent skills, Docker, or a
-local development database.
+your own database and files; agent skills, Docker, and local test databases
+are optional development tools, not runtime requirements.
 
 ## Set up your workspace
 
@@ -18,8 +18,14 @@ source .venv/bin/activate
 python -m pip install -e .
 ```
 
-`pyodbc` also requires an ODBC driver manager and an Oracle ODBC driver
-installed for your platform.
+By default the validator connects through `pyodbc`, which requires a platform
+ODBC manager and an Oracle ODBC driver. To use the optional Python thin driver
+instead, install the `oracle-dbapi` extra and set
+`ORACLE_CONNECTION_MODE=oracledb` in `.env`:
+
+```sh
+python -m pip install -e ".[oracle-dbapi]"
+```
 
 Create a configuration template in your workspace and copy it to `.env`:
 
@@ -33,6 +39,10 @@ Set your Oracle connection, SELECT/WITH query or table, input path, and any
 matching options in `.env`. For a comma-separated CSV, set `DAT_SEPARATOR=,`;
 the default delimiter for DAT exports is `|`. Keep real credentials only in
 your ignored local `.env` file and never commit it.
+
+For either Oracle driver, select one SQL `SELECT`/`WITH` query or set
+`ORACLE_TABLE`. For deterministic results when matching rows by position,
+include an `ORDER BY`; alternatively set `KEY_COLUMNS` to match rows by key.
 
 ## Run a validation
 

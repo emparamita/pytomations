@@ -19,6 +19,7 @@ dist/
 # Validation output and synthetic files from the developer tooling.
 reports/
 test-data/generated.*
+test-data/gas_billing_detail.dat
 
 # macOS metadata.
 .DS_Store

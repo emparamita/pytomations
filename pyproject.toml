@@ -13,6 +13,9 @@ dynamic = ["dependencies"]
 [project.scripts]
 data-validation = "data_validation:main"
 
+[project.optional-dependencies]
+oracle-dbapi = ["oracledb"]
+
 [tool.setuptools]
 packages = ["pytomations_data_validation"]
 py-modules = ["data_validation"]

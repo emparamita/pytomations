@@ -23,10 +23,14 @@ must be changed from the example placeholders before starting.
 
 The validator's Oracle connection is controlled independently by `.env`.
 Configure its ODBC DSN or connection string with the local app username,
-password, and `127.0.0.1:1521/FREEPDB1`; this may require Oracle Instant Client
-and an Oracle ODBC driver on the host. To use a production database later, the
-user must deliberately replace the `ORACLE_*` settings in `.env`; neither
-skill edits or discovers production URLs.
+password, and `127.0.0.1:1521/FREEPDB1`; this may require an Oracle ODBC driver
+on the host. Alternatively, the user-facing validator supports its optional
+Python thin driver: install it with
+`python -m pip install -e '.[oracle-dbapi]'` and set
+`ORACLE_CONNECTION_MODE=oracledb` plus `ORACLE_DBAPI_DSN` in `.env`. To use a
+production database later, the user must deliberately replace the
+`ORACLE_*` settings in `.env`; neither skill edits or discovers production
+URLs.
 
 ## `/local-db start`
 

@@ -38,19 +38,36 @@ python .agents/local-db/local_db.py start
 python .agents/local-db/local_db.py status
 ```
 
-Seeding synthetic data is optional. Its Oracle driver is deliberately separate
-from the user's project dependencies:
+Apply the synthetic gas-billing schema once and seed it with synthetic rows:
+
+```sh
+python .agents/local-db/local_db.py execute_script .agents/local-db/gas_billing_schema.sql
+python .agents/local-db/local_db.py seed_data GAS_BILLING_DETAIL --rows 15000
+```
+
+The schema has 146 columns, including an Oracle-generated identity key. Seeding
+appends rows; rerun only when you intend to add more rows. The schema script is
+for a fresh local database and should be applied once.
+
+The local database helper's Oracle driver is deliberately separate from the
+user-facing project dependencies:
 
 ```sh
 python -m pip install -r .agents/local-db/requirements.txt
-python .agents/local-db/local_db.py seed_data CUSTOMER --rows 1000
 ```
 
-To run the validator against this database, install an Oracle ODBC driver on
-the host and configure the user's `.env` with the local app username,
-password, and `127.0.0.1:1521/FREEPDB1`. This is a separate configuration from
-`.local-db.env`, which is used only by the local database tooling. Use
-synthetic input files and never production credentials or data in these checks.
+To run the validator against this database, configure the user's `.env`
+separately from `.local-db.env`. The validator supports ODBC mode (which
+requires an Oracle ODBC driver on the host) and the optional `oracledb` thin
+driver, which can be installed with `python -m pip install -e
+'.[oracle-dbapi]'`. For either mode, use the local app username, password, and
+`127.0.0.1:1521/FREEPDB1`. Never use production credentials or data in these
+checks.
+
+For an end-to-end comparison, the DAT/CSV export must contain the same selected
+columns, values, and row snapshot returned by the Oracle query. The dump
+generator below creates generic data for testing the file-reading workflow; it
+does not export or generate rows matching `GAS_BILLING_DETAIL`.
 
 ## Agent skills and synthetic exports
 
@@ -62,9 +79,17 @@ synthetic input files and never production credentials or data in these checks.
   python .agents/dumps-generator/generate_dumps.py DAT --rows 10
   ```
 
+  The generator defaults to 10,000 rows and 135 columns (supported range:
+  120-150). It writes generic synthetic records and does not create a matching
+  export of the local Oracle schema.
+
 - `local-db/SKILL.md` documents local Oracle lifecycle, SQL script execution,
   and optional synthetic table seeding.
 - `py-analyst-mode/SKILL.md` provides general Python data-analysis guidance.
 
 Generated test files default to `test-data/generated.*`, which is ignored by
 Git. Do not commit generated data, local database files, or credentials.
+
+Run the Docker-free unit and CLI checks with `python -m pytest`. Local Oracle
+integration is optional; use helper `--dry-run` flags to inspect commands
+without contacting Docker or Oracle.
