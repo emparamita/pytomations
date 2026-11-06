@@ -7,7 +7,7 @@ name = "pytomations-data-validation"
 version = "0.1.0"
 description = "Compare Oracle query results with a DAT export and create an Excel report."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python ₹= ">=3.10"
 dynamic = ["dependencies"]
 
 [project.scripts]
