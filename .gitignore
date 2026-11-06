@@ -1,4 +1,13 @@
+# Local environment files and credentials. Keep checked-in templates visible.
 .env
+.env.*
+!.env.example
+!.env.*.example
+.local-db.env
+.local-db.env.*
+!.local-db.env.example
+
+# Python environments, caches, and packaging artifacts.
 .venv/
 __pycache__/
 .pytest_cache/
@@ -6,7 +15,10 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+# Validation output and synthetic files from the developer tooling.
 reports/
-.DS_Store
-.local-db.env
 test-data/generated.*
+
+# macOS metadata.
+.DS_Store

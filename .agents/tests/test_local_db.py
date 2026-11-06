@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
-LOCAL_DB = ROOT / "scripts/local_db.py"
+ROOT = Path(__file__).resolve().parents[2]
+LOCAL_DB = ROOT / ".agents/local-db/local_db.py"
 
 
 def run_local_db(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:

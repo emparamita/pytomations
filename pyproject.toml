@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pytomations-data-validation"
 version = "0.1.0"
-description = "Compare Oracle query results with a DAT export and create an Excel report."
+description = "Compare Oracle query results with DAT or CSV exports and create an Excel report."
 readme = "README.md"
 requires-python = ">=3.10"
 dynamic = ["dependencies"]
@@ -13,13 +13,9 @@ dynamic = ["dependencies"]
 [project.scripts]
 data-validation = "data_validation:main"
 
-[project.optional-dependencies]
-local-db = ["oracledb"]
-
 [tool.setuptools]
 packages = ["pytomations_data_validation"]
 py-modules = ["data_validation"]
-package-dir = { pytomations_data_validation = ".agents/data-validation" }
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
@@ -28,4 +24,4 @@ dependencies = { file = ["requirements.txt"] }
 pytomations_data_validation = [".env.example"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", ".agents/tests"]

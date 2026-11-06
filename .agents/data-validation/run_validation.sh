@@ -5,5 +5,4 @@
 set -euo pipefail
 CONDA_ENV="${1:-base}"
 ENV_FILE="${2:-.env}"
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec conda run -n "$CONDA_ENV" --no-capture-output python "$DIR/validate_data.py" --env "$ENV_FILE"
+exec conda run -n "$CONDA_ENV" --no-capture-output data-validation --env "$ENV_FILE"
