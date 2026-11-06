@@ -15,7 +15,7 @@ import sys
 from dotenv import load_dotenv
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ENV_FILE = ROOT / ".local-db.env"
 COMPOSE_FILE = ROOT / ".agents" / "local-db" / "compose.yaml"
 CONTAINER_SERVICE = "oracle"
@@ -156,7 +156,8 @@ def seed_data(table: str, row_count: int, env_file: Path, dry_run: bool) -> None
         import oracledb
     except ImportError as exc:
         raise RuntimeError(
-            "Install the local database extra with `python -m pip install -e '.[local-db]'`."
+            "Install the local database driver with "
+            "`python -m pip install -r .agents/local-db/requirements.txt`."
         ) from exc
 
     connection = oracledb.connect(user=user, password=password, dsn=dsn)

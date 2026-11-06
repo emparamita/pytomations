@@ -2,6 +2,16 @@
 
 Order for every change: Make it Work, then Make it Right, then Practice.
 
+## Repository boundaries
+
+- The user-facing Oracle/DAT/CSV validator is the installable
+  `pytomations_data_validation` package. Follow the root `README.md` for user
+  setup and keep its runtime independent of agent tooling.
+- Agent skills, synthetic dump generation, local Oracle Docker configuration,
+  and their tests live under `.agents/`. Follow `.agents/README.md` for local
+  development and validation; never require local Docker setup for users of
+  the Python package.
+
 ## Token budget
 - Never print or read whole DataFrames/files. Use `shape`, `dtypes`, `head(3)`, `describe()`, `nunique()`, `isna().sum()`.
 - Load only needed columns/rows (`usecols`, `nrows`, SQL `LIMIT`). Prefer parquet over CSV.

@@ -3,12 +3,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "local-db"))
 from local_db import _row_value
 
 
-ROOT = Path(__file__).resolve().parents[1]
-LOCAL_DB = ROOT / "scripts/local_db.py"
+ROOT = Path(__file__).resolve().parents[2]
+LOCAL_DB = ROOT / ".agents/local-db/local_db.py"
 
 
 def run_local_db(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:

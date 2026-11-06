@@ -5,20 +5,23 @@ description: Validates daily project data by comparing an Oracle (ODBC) extract 
 
 # Data Validation Skill
 
-Oracle DB = source of truth. Compares all fields/rows to a `.dat` export. The script runs later on another machine **without an agent or LLM**, so everything is `.env`-driven and self-contained.
+Oracle DB = source of truth. This skill helps an agent create, configure, or
+troubleshoot the user-facing Python project, which runs independently of any
+agent or LLM. The validator and its dependencies live in the installable
+`pytomations_data_validation` package, not in this skill directory.
 
 ## Files
-- `scripts/validate_data.py` - the validator. Black box: run `--help`, don't read the source unless changing it.
-- `scripts/run_validation.ps1` - PowerShell wrapper (Windows, conda).
-- `scripts/run_validation.sh` - bash wrapper (macOS/Linux; needs `brew install unixodbc` + Oracle Instant Client ODBC driver).
-- `scripts/requirements.txt` - pip fallback.
-- `resources/.env.example` - config template.
+- `pytomations_data_validation/validate_data.py` - user-facing validator.
+- `pytomations_data_validation/.env.example` - user configuration template.
+- `README.md` - installation, `.env`, and run instructions for users.
+- `run_validation.ps1` / `run_validation.sh` - optional conda wrappers for the installed CLI.
 
 ## Workflow
-1. Copy `resources/.env.example` to the workspace root as `.env.example` (or `python scripts/validate_data.py --init-env`). Never create or fill `.env` with real credentials; ensure `.env` is in `.gitignore`.
-2. Check deps: `python scripts/validate_data.py --check-deps`. If missing, `--install-deps` (tries `conda install` first, then `pip`).
-3. Adapt `validate_data.py` only if the user needs new rules; keep all settings in `.env`.
-4. Hand over: tell the user to copy `.env.example` to `.env`, fill values, then run `.\.agents\skills\data-validation\scripts\run_validation.ps1` from the workspace root (or `python ...\validate_data.py`).
+1. Follow the root `README.md` to install the project and create `.env.example`; do not ask users to configure agent-only files.
+2. Keep user connection values and input/output paths in the user's project `.env`. Never create or fill `.env` with real credentials; ensure it is git-ignored.
+3. Use `data-validation --check-deps` to diagnose project dependencies. The project's `--install-deps` option remains available when explicitly requested.
+4. If validation behavior must change, modify the installable package and its tests, not this skill or the local database tools.
+5. Hand over the exact setup and CLI steps from the root `README.md`.
 
 ## Decision tree
 - `KEY_COLUMNS` set (comma-separated) -> match rows by key (duplicates paired by occurrence order). Empty -> match by row position (set `ORACLE_ORDER_BY`/ORDER BY for stable order).

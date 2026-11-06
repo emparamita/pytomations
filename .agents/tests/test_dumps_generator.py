@@ -8,8 +8,8 @@ import xml.etree.ElementTree as ET
 import pytest
 
 
-ROOT = Path(__file__).resolve().parents[1]
-GENERATOR = ROOT / "scripts" / "generate_dumps.py"
+ROOT = Path(__file__).resolve().parents[2]
+GENERATOR = ROOT / ".agents" / "dumps-generator" / "generate_dumps.py"
 
 
 @pytest.mark.parametrize("file_type", ["CSV", "JSON", "XML", "DAT"])
@@ -85,7 +85,7 @@ def test_generator_rejects_columns_outside_supported_range(tmp_path: Path) -> No
 
 def test_local_db_cli_describes_commands_without_starting_database() -> None:
     result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "local_db.py"), "--help"],
+        [sys.executable, str(ROOT / ".agents" / "local-db" / "local_db.py"), "--help"],
         cwd=ROOT,
         check=True,
         capture_output=True,

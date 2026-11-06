@@ -5,17 +5,18 @@ description: Generate deterministic, large synthetic CSV, JSON, XML, and pipe-de
 
 # Dumps generator
 
-Use the repository's dependency-free `scripts/generate_dumps.py` script. It
+Use the repository's dependency-free `generate_dumps.py` script in this skill
+directory. It
 streams rows to disk, overwrites the selected output file, and never accesses a
 database or external service.
 
 ## Command
 
 ```sh
-python scripts/generate_dumps.py CSV
-python scripts/generate_dumps.py JSON --rows 100000 --columns 140 --seed 23
-python scripts/generate_dumps.py XML --output test-data/sample.xml
-python scripts/generate_dumps.py DAT --output data/export_20261103.dat
+python .agents/dumps-generator/generate_dumps.py CSV
+python .agents/dumps-generator/generate_dumps.py JSON --rows 100000 --columns 140 --seed 23
+python .agents/dumps-generator/generate_dumps.py XML --output test-data/sample.xml
+python .agents/dumps-generator/generate_dumps.py DAT --output data/export_20261103.dat
 ```
 
 The positional file type is case-insensitive: `CSV`, `JSON`, `XML`, or `DAT`.
@@ -38,5 +39,5 @@ with a different DAT separator, pass `--dat-separator` (or `TAB`) and set the
 same `DAT_SEPARATOR` value in the validator's `.env`. DAT output always
 includes the header.
 
-Run `python scripts/generate_dumps.py --help` for the complete option list.
+Run `python .agents/dumps-generator/generate_dumps.py --help` for the complete option list.
 One row represents one synthetic validation record.

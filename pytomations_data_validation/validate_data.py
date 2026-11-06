@@ -93,7 +93,9 @@ def fetch_db(cfg):
         try:
             import oracledb
         except ImportError as exc:
-            raise RuntimeError("Install python-oracledb with `python -m pip install -e '.[local-db]'`") from exc
+            raise RuntimeError(
+                "Install python-oracledb with `python -m pip install -e '.[oracle-dbapi]'`"
+            ) from exc
         conn = oracledb.connect(user=cfg["user"], password=cfg["pwd"], dsn=cfg["dbapi_dsn"])
     else:
         import pyodbc

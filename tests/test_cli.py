@@ -21,7 +21,7 @@ def test_project_entrypoint_displays_help() -> None:
 
 def test_init_env_writes_template_outside_repository(tmp_path: Path) -> None:
     result = subprocess.run(
-        [sys.executable, str(ROOT / ".agents/data-validation/validate_data.py"), "--init-env"],
+        [sys.executable, str(ROOT / "data_validation.py"), "--init-env"],
         cwd=tmp_path,
         check=True,
         capture_output=True,

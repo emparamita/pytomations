@@ -4,9 +4,8 @@ import sys
 import pytest
 
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / ".agents" / "data-validation"))
-import validate_data
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from pytomations_data_validation import validate_data
 
 
 def test_load_config_accepts_python_oracledb_connection(tmp_path: Path) -> None:
