@@ -10,3 +10,4 @@ reports/
 .DS_Store
 .local-db.env
 test-data/generated.*
+test-data/gas_billing_detail.dat

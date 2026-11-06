@@ -112,10 +112,13 @@ def _row_value(data_type: str, size: int, precision: int | None, scale: int | No
                row_index: int, column_index: int) -> object:
     normalized = data_type.upper()
     if normalized in {"NUMBER", "FLOAT", "BINARY_FLOAT", "BINARY_DOUBLE"}:
-        if scale in (None, 0):
-            return row_index * 100 + column_index
-        decimal_places = min(max(scale, 0), 6)
-        return Decimal(f"{row_index}.{column_index % (10 ** decimal_places):0{decimal_places}d}")
+        decimal_places = max(scale or 0, 0)
+        integer_digits = max(precision - decimal_places, 1) if precision else 10
+        integer_part = (row_index * 100 + column_index) % (10 ** integer_digits)
+        if decimal_places == 0:
+            return integer_part
+        fractional_part = (row_index + column_index) % (10 ** decimal_places)
+        return Decimal(f"{integer_part}.{fractional_part:0{decimal_places}d}")
     if normalized == "DATE":
         return datetime(2024, 1, 1) + timedelta(days=row_index, seconds=column_index)
     if normalized.startswith("TIMESTAMP"):

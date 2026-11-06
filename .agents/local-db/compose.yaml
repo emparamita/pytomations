@@ -1,6 +1,6 @@
 services:
   oracle:
-    image: gvenzl/oracle-free:23-slim-fast
+    image: gvenzl/oracle-free:23.26.3-slim-faststart
     container_name: local-db-oracle
     environment:
       ORACLE_PASSWORD: ${LOCAL_ORACLE_PASSWORD:?Set LOCAL_ORACLE_PASSWORD in .local-db.env}

@@ -51,6 +51,8 @@ def load_config(env_path):
     sep = (g("DAT_SEPARATOR") or "|").replace("\\t", "\t")
     cs = lambda k: [x.strip() for x in g(k).split(",") if x.strip()]
     cfg = dict(
+        connection_mode=(g("ORACLE_CONNECTION_MODE", "odbc").strip().lower() or "odbc"),
+        dbapi_dsn=g("ORACLE_DBAPI_DSN").strip(),
         dsn=g("ORACLE_ODBC_DSN").strip(), user=g("ORACLE_USER").strip(), pwd=g("ORACLE_PASSWORD"),
         conn_str=g("ORACLE_ODBC_CONN_STR").strip(), timeout=int(g("ORACLE_LOGIN_TIMEOUT", "30") or 30),
         query=g("ORACLE_QUERY").strip(), table=g("ORACLE_TABLE").strip(), order_by=g("ORACLE_ORDER_BY").strip(),
@@ -66,18 +68,17 @@ def load_config(env_path):
         raise ValueError("DAT_FILE_PATH is required")
     if not (cfg["query"] or cfg["table"]):
         raise ValueError("Set ORACLE_QUERY or ORACLE_TABLE")
-    if not (cfg["conn_str"] or (cfg["dsn"] and cfg["user"])):
+    if cfg["connection_mode"] not in {"odbc", "oracledb"}:
+        raise ValueError("ORACLE_CONNECTION_MODE must be 'odbc' or 'oracledb'")
+    if cfg["connection_mode"] == "oracledb" and not (cfg["dbapi_dsn"] and cfg["user"] and cfg["pwd"]):
+        raise ValueError("oracledb mode requires ORACLE_DBAPI_DSN, ORACLE_USER, and ORACLE_PASSWORD")
+    if cfg["connection_mode"] == "odbc" and not (cfg["conn_str"] or (cfg["dsn"] and cfg["user"])):
         raise ValueError("Set ORACLE_ODBC_DSN + ORACLE_USER + ORACLE_PASSWORD (or ORACLE_ODBC_CONN_STR)")
     return cfg
 
 # ---------------------------------------------------------------- sources
 def fetch_db(cfg):
-    import pandas as pd, pyodbc
-    esc = "{" + cfg["pwd"].replace("}", "}}") + "}"
-    if cfg["conn_str"]:
-        cs = cfg["conn_str"].replace("%USER%", cfg["user"]).replace("%PASSWORD%", cfg["pwd"])
-    else:
-        cs = f"DSN={cfg['dsn']};UID={cfg['user']};PWD={esc}"
+    import pandas as pd
     if cfg["query"]:
         sql = cfg["query"].rstrip().rstrip(";")
     else:
@@ -88,7 +89,20 @@ def fetch_db(cfg):
         raise ValueError("Only SELECT/WITH queries are allowed")
     if not cfg["keys"] and not re.search(r"order\s+by", sql, re.I):
         log.warning("Position matching without ORDER BY: row order from Oracle is not guaranteed")
-    conn = pyodbc.connect(cs, timeout=cfg["timeout"])
+    if cfg["connection_mode"] == "oracledb":
+        try:
+            import oracledb
+        except ImportError as exc:
+            raise RuntimeError("Install python-oracledb with `python -m pip install -e '.[local-db]'`") from exc
+        conn = oracledb.connect(user=cfg["user"], password=cfg["pwd"], dsn=cfg["dbapi_dsn"])
+    else:
+        import pyodbc
+        esc = "{" + cfg["pwd"].replace("}", "}}") + "}"
+        if cfg["conn_str"]:
+            cs = cfg["conn_str"].replace("%USER%", cfg["user"]).replace("%PASSWORD%", cfg["pwd"])
+        else:
+            cs = f"DSN={cfg['dsn']};UID={cfg['user']};PWD={esc}"
+        conn = pyodbc.connect(cs, timeout=cfg["timeout"])
     try:
         cur = conn.cursor()
         cur.execute(sql)
@@ -124,6 +138,11 @@ def read_dat(path, cfg, ncols_db):
 
 # ---------------------------------------------------------------- normalization
 def kind_of(t):
+    type_name = getattr(t, "name", "").upper()
+    if type_name in {"DB_TYPE_DATE", "DB_TYPE_TIMESTAMP", "DB_TYPE_TIMESTAMP_TZ", "DB_TYPE_TIMESTAMP_LTZ"}:
+        return "date"
+    if type_name in {"DB_TYPE_NUMBER", "DB_TYPE_BINARY_FLOAT", "DB_TYPE_BINARY_DOUBLE"}:
+        return "num"
     try:
         if issubclass(t, dt.date):
             return "date"
@@ -167,10 +186,11 @@ def norm_value(v, kind, cfg):
 
 def normalize_frame(df, kinds, cfg):
     import pandas as pd
-    out = pd.DataFrame(index=df.index)
-    for c, k in zip(df.columns, kinds):
-        out[c] = df[c].map(lambda v, k=k: norm_value(v, k, cfg))
-    return out
+    columns = {
+        c: df[c].map(lambda v, k=k: norm_value(v, k, cfg))
+        for c, k in zip(df.columns, kinds)
+    }
+    return pd.DataFrame(columns, index=df.index)
 
 def make_keys(nd, key_cols):
     import pandas as pd
